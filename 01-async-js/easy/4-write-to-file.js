@@ -8,7 +8,7 @@ const fs = require("fs");
 console.log("Start");
 
 const data1 = "Hello from writeFile (async)\n";
-fs.writeFile("./01-async-js/easy/text_file.txt", data1, 
+fs.writeFile("./easy/text_file.txt", data1, 
     (err) => {
         if (err) {
             console.error("Error writing file:", err);
@@ -19,7 +19,7 @@ fs.writeFile("./01-async-js/easy/text_file.txt", data1,
 )
 const data2 = "Hello from writeFileSync (sync)\n";
 fs.writeFileSync(
-    "./01-async-js/easy/text_file.txt", data2
+    "./easy/text_file.txt", data2
 );
 console.log("Sync write completed");
 

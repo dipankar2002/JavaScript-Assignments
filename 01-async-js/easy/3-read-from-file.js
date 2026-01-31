@@ -9,7 +9,7 @@ const fs = require("fs");
 
 console.log("Start");
 
-fs.readFile("./01-async-js/easy/text_file.txt", "utf8", (err, data) => {
+fs.readFile("./easy/text_file.txt", "utf8", (err, data) => {
     if(err) {
         console.error("Error Found:\n", err);
         return;
@@ -17,7 +17,7 @@ fs.readFile("./01-async-js/easy/text_file.txt", "utf8", (err, data) => {
     console.log("File data in readFile:\n", data);
 })
 
-const data = fs.readFileSync("./01-async-js/easy/text_file.txt", "utf8");
+const data = fs.readFileSync("./easy/text_file.txt", "utf8");
 console.log("File data in readFileSync:\n",data);
 
 // Expensive operation (blocking)
