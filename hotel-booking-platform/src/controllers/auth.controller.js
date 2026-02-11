@@ -2,7 +2,7 @@ import pool from "../db/db.js";
 import { nanoid } from "nanoid";
 import { loginSchema, signupSchema } from "../zod/auth.zod.js";
 import { comparePassword, hashedPassword } from "../utils/hashPass.js";
-import { createTocken } from "../utils/jwt.js";
+import { createToken } from "../utils/jwt.js";
 
 
 export const login = async (req, res) => {
@@ -27,7 +27,7 @@ export const login = async (req, res) => {
             })
         }
         const hashedPass = userResult.rows[0].password;
-        const validPassword = comparePassword(password, hashedPass);
+        const validPassword = await comparePassword(password, hashedPass);
         if(!validPassword) {
             return res.status(401).json({
                 "success": false,
@@ -36,7 +36,10 @@ export const login = async (req, res) => {
             })
         }
         
-        const JWT_TOKEN = createTocken(email);
+        const JWT_TOKEN = createToken({ 
+            id: userResult.rows[0].id, 
+            role: userResult.rows[0].role
+        });
 
         return res.status(200).json({
             "success": true,
@@ -83,7 +86,7 @@ export const signup = async (req, res) => {
             })
         }
 
-        const hashPass = hashedPassword(password);
+        const hashPass = await hashedPassword(password);
         const userId = `usr_${nanoid(10)}`;
 
         await pool.query(
