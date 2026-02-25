@@ -55,7 +55,59 @@ export const getHotelInfo = async (req, res) => {
         });
     }
 }
+export const searchHotel = async (req, res) => {
+    try {
+        const city = req.query.city || '';
+        const country = req.query.country || '';
+        const minPrice = req.query.minPrice ? Number(req.query.minPrice) : null;
+        const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : null;
+        const minRating = req.query.minRating ? Number(req.query.minRating) : null;
 
+        const searchResult = await pool.query(
+        `
+            SELECT h.id,h.name,h.description,h.city,h.country,h.amenities,h.rating,h.total_reviews,
+            MIN(r.price_per_night) AS min_price_per_night
+
+            FROM hotels h
+            JOIN rooms r ON h.id = r.hotel_id
+
+            WHERE ($1 = '' OR LOWER(h.city)=LOWER($1))
+            AND ($2 = '' OR LOWER(h.country)=LOWER($2))
+
+            AND ($3::numeric IS NULL OR h.rating >= $3::numeric)
+            AND ($4::numeric IS NULL OR r.price_per_night >= $4::numeric)
+            AND ($5::numeric IS NULL OR r.price_per_night <= $5::numeric)
+
+            GROUP BY h.id,h.name,h.description,h.city,h.country,h.amenities,h.rating,h.total_reviews
+            `,
+            [city, country, minRating, minPrice, maxPrice]
+        );
+        const hotels = searchResult.rows.map(hotel => ({
+            id: room.id, 
+            name: room.name, 
+            description: room.description, 
+            city: room.city,
+            country: room.country,
+            amenities: room.amenities,
+            rating: room.rating,
+            totalReviews: room.total_reviews,
+            minPricePerNight: Number(room.min_price_per_night)
+        }));
+        
+        return res.status(200).json({
+            "success": true,
+            "data": hotels,
+            "error": null
+        })
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            data: null,
+            error: "INTERNAL_SERVER_ERROR"
+        });
+    }
+}
 export const addRoomToHotel = async (req, res) => {
     try {
         const hotelId = req.params.hotelId;
