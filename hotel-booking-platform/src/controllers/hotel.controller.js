@@ -2,6 +2,60 @@ import { nanoid } from "nanoid";
 import pool from "../db/db.js";
 import { addRoomSchema, createHotelSchema } from "../zod/hotel.zod.js";
 
+
+export const getHotelInfo = async (req, res) => {
+    try {
+        const hotelId = req.params.hotelId;
+        const searchHotelRes = await pool.query(
+            "SELECT * FROM hotels WHERE id = $1",
+            [hotelId]
+        )
+        if(searchHotelRes.rows.length === 0) {
+            return res.status(404).json({
+                "success": false,
+                "data": null,
+                "error": "HOTEL_NOT_FOUND"
+            })
+        }
+        const searchRoomRes = await pool.query(
+            `SELECT id, room_number, room_type, price_per_night, max_occupancy FROM rooms WHERE hotel_id = $1`,
+            [hotelId]
+        )
+
+        const { id, owner_id, name, description, city, country, amenities, rating, total_reviews } = searchHotelRes.rows[0];
+        const rooms = searchRoomRes.rows.map(room => ({ 
+            id:room.id, 
+            roomNumber:room.room_number, 
+            roomType:room.room_type, 
+            pricePerNight:room.price_per_night, 
+            maxOccupancy: room.max_occupancy 
+        }));
+        return res.status(200).json({
+            "success": true,
+            "data": {
+                id: id,
+                ownerId: owner_id,
+                name: name,
+                description: description,
+                city: city,
+                country: country,
+                amenities: amenities,
+                rating: rating,
+                totalReviews: total_reviews,
+                rooms: rooms
+            },
+            "error": null
+        })
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            data: null,
+            error: "INTERNAL_SERVER_ERROR"
+        });
+    }
+}
+
 export const addRoomToHotel = async (req, res) => {
     try {
         const hotelId = req.params.hotelId;
@@ -75,7 +129,6 @@ export const addRoomToHotel = async (req, res) => {
         });
     }
 }
-
 export const createHotel = async (req, res) => {
     try {
         const ownerId = req.user.id;
