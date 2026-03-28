@@ -46,7 +46,7 @@ export const ownerOnlyMiddle = async (req, res, next) => {
     }
 }
 
-export const customerOnly = async (res, req, next) => {
+export const customerOnly = async (req, res, next) => {
     try {
         const role = req.user.role;
         if (role !== "customer") {

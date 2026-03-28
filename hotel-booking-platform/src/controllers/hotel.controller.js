@@ -82,16 +82,16 @@ export const searchHotel = async (req, res) => {
             `,
             [city, country, minRating, minPrice, maxPrice]
         );
-        const hotels = searchResult.rows.map(hotel => ({
-            id: room.id, 
-            name: room.name, 
-            description: room.description, 
-            city: room.city,
-            country: room.country,
-            amenities: room.amenities,
-            rating: room.rating,
-            totalReviews: room.total_reviews,
-            minPricePerNight: Number(room.min_price_per_night)
+        const hotels = searchResult.rows.map(h => ({
+            id: h.id,
+            name: h.name,
+            description: h.description,
+            city: h.city,
+            country: h.country,
+            amenities: h.amenities,
+            rating: h.rating,
+            totalReviews: h.total_reviews,
+            minPricePerNight: Number(h.min_price_per_night)
         }));
         
         return res.status(200).json({
